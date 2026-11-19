@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A little note for you</title>
+  <style>
+    :root { --ink:#493b43; --muted:#806f79; --rose:#d96f88; --rose-dark:#bd536f; --cream:#fffaf7; --pink:#fbe8ed; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+      color: var(--ink); font-family: ui-rounded, "Avenir Next", Avenir, system-ui, sans-serif;
+      background: radial-gradient(circle at 15% 15%, #fff 0 7%, transparent 32%),
+                  linear-gradient(135deg, #f9e7eb, #f8f0e9 55%, #f4e5ed);
+      overflow-x: hidden;
+    }
+    .card {
+      width: min(100%, 560px); text-align: center; padding: clamp(28px, 6vw, 54px);
+      border: 1px solid rgba(255,255,255,.9); border-radius: 30px;
+      background: rgba(255,250,247,.88); box-shadow: 0 24px 70px rgba(117,72,91,.14);
+      position: relative;
+    }
+    .heart { font-size: 38px; margin-bottom: 12px; animation: beat 1.8s ease-in-out infinite; }
+    @keyframes beat { 0%,100%{transform:scale(1)} 12%{transform:scale(1.12)} 24%{transform:scale(1)} }
+    h1 { font-family: Georgia, serif; font-size: clamp(34px, 7vw, 48px); font-weight: 500; margin: 0 0 14px; letter-spacing: -.8px; }
+    .intro { color: var(--muted); line-height: 1.75; font-size: 16px; max-width: 420px; margin: 0 auto; }
+    .note { margin: 24px auto 0; padding: 18px 20px; border-radius: 18px; background: #fff1f3; color: #6c5360; line-height: 1.7; font-size: 15px; }
+    .question { margin: 26px 0 12px; font-size: 17px; font-weight: 650; }
+    .button-area { position: relative; min-height: 190px; display: flex; justify-content: center; align-items: flex-start; padding-top: 8px; gap: 14px; flex-wrap: wrap; }
+    button { border: 0; border-radius: 999px; padding: 13px 25px; min-width: 126px; font: inherit; font-weight: 650; font-size: 15px; cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    button:focus-visible { outline: 3px solid #8f5368; outline-offset: 4px; }
+    #accept { color: white; background: var(--rose); box-shadow: 0 8px 18px rgba(217,111,136,.25); }
+    #accept:hover { background: var(--rose-dark); transform: translateY(-2px); }
+    #decline { color: #765d68; background: #f2e7e9; border: 1px solid #ead9de; }
+    #decline:hover { background: #eddee2; }
+    .result { display:none; margin-top: 24px; padding: 22px; border-radius: 18px; background: #fff1f3; line-height: 1.7; color: #684e5b; }
+    .result strong { display:block; font-family: Georgia,serif; font-size: 25px; font-weight: 500; margin-bottom: 8px; color: #8f4f65; }
+    .small { color: #9a8790; font-size: 12px; margin-top: 22px; }
+    .sparkle { position: absolute; color: #d9a0af; opacity: .65; font-size: 20px; }
+    .s1 { top: 28px; left: 28px; } .s2 { top: 70px; right: 30px; } .s3 { bottom: 30px; left: 42px; }
+    @media (max-width: 420px) { .button-area { gap: 10px; } button { min-width: 116px; padding: 12px 19px; } }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <span class="sparkle s1">✦</span><span class="sparkle s2">✧</span><span class="sparkle s3">✦</span>
+    <div class="heart" aria-hidden="true">💗</div>
+    <h1>I'm sorry, Muskan.</h1>
+    <p class="intro">I know an apology can't undo how you felt. I want to listen better, understand you more, and show up in the ways that matter.</p>
+    <div class="note">You don't have to be okay all the time, and you don't have to explain your feelings perfectly for me to care. I love you, and I'm working on being a more thoughtful partner.</div>
+    <p class="question">Can we take a little step towards talking?</p>
+    <div class="button-area" id="buttonArea">
+      <button id="accept" type="button">Accept 💕</button>
+      <button id="decline" type="button">Decline</button>
+    </div>
+    <section class="result" id="accepted" aria-live="polite">
+      <strong>Thank you, my favourite person. 💗</strong>
+      No pressure to solve everything right now. One conversation at a time, whenever you're ready.
+    </section>
+    <section class="result" id="declined" aria-live="polite">
+      <strong>Okay. I hear you. 🤍</strong>
+      I'll respect your space. You don't owe me an answer before you're ready.
+    </section>
+    <p class="small">Made with love, and with room for your feelings.</p>
+  </main>
+  <script>
+    const accept = document.getElementById('accept');
+    const decline = document.getElementById('decline');
+    const area = document.getElementById('buttonArea');
+    const accepted = document.getElementById('accepted');
+    const declined = document.getElementById('declined');
+    const playfulLines = [
+      'Are you sure? 🙈', 'Wait, think again? 🥺', 'Pretty please? 💗',
+      'I can listen. 🤍', 'One tiny chance? 🌷', 'Still dodging! 😅'
+    ];
+    let playfulMoves = 0;
+
+    accept.addEventListener('click', () => {
+      accepted.style.display = 'block';
+      declined.style.display = 'none';
+      accept.textContent = 'A little hug 🤗';
+      decline.style.display = 'none';
+    });
+
+    decline.addEventListener('click', () => {
+      accepted.style.display = 'none';
+      playfulMoves += 1;
+
+      // Keep dodging forever, but always stay inside the button area.
+      const maxX = Math.max(0, area.clientWidth - decline.offsetWidth);
+      const maxY = Math.max(0, area.clientHeight - decline.offsetHeight);
+      const acceptRect = accept.getBoundingClientRect();
+      const areaRect = area.getBoundingClientRect();
+      let x = 0;
+      let y = 0;
+      let attempts = 0;
+
+      do {
+        x = Math.random() * maxX;
+        y = Math.random() * maxY;
+        const candidate = {
+          left: areaRect.left + x,
+          right: areaRect.left + x + decline.offsetWidth,
+          top: areaRect.top + y,
+          bottom: areaRect.top + y + decline.offsetHeight
+        };
+        const overlapsAccept = candidate.left < acceptRect.right &&
+          candidate.right > acceptRect.left && candidate.top < acceptRect.bottom &&
+          candidate.bottom > acceptRect.top;
+        if (!overlapsAccept || attempts >= 30) break;
+        attempts += 1;
+      } while (true);
+
+      decline.style.position = 'absolute';
+      decline.style.left = `${x}px`;
+      decline.style.top = `${y}px`;
+      decline.textContent = playfulLines[(playfulMoves - 1) % playfulLines.length];
+    });
+  </script>
+</body>
+</html>
